@@ -1,0 +1,26 @@
+import pandas as pd
+import talib
+
+def trading_strategy(df):
+    # Calculate the 14-day relative strength index (RSI)
+    df['RSI'] = talib.RSI(df['Close'], timeperiod=14)
+    
+    # Create a new column with a value of 1 when RSI is below 30 and -1 when RSI is above 70
+    df['Signal'] = np.where(df['RSI'] < 30, 1, np.where(df['RSI'] > 70, -1, 0))
+    
+    # Create a new column with the difference between the current signal and the previous signal
+    df['Signal_Change'] = df['Signal'].diff()
+    
+    # Buy when the signal changes from -1 to 1, sell when the signal changes from 1 to -1
+    df['Position'] = np.where(df['Signal_Change'] == 2, 1, np.where(df['Signal_Change'] == -2, -1, 0))
+    
+    return df
+
+# Read in a CSV file of historical stock data
+df = pd.read_csv('stock_data.csv')
+
+# Run the trading strategy on the data
+df = trading_strategy(df)
+
+# Print out the final dataframe
+print(df)
