@@ -1,0 +1,33 @@
+#include <MetaTrader5.h>
+
+int OnInit()
+{
+    // Initialize the trading environment
+    return(INIT_SUCCEEDED);
+}
+
+void OnTick()
+{
+    // Get the current price of the stock
+    double stockPrice = SymbolInfoDouble(Symbol(), SYMBOL_BID);
+
+    // Get the previous day's close price of the stock
+    double previousClosePrice = iClose(Symbol(), PERIOD_D1, 1);
+
+    // Calculate the percentage change
+    double percentChange = (stockPrice - previousClosePrice) / previousClosePrice * 100;
+
+    // Check if the stock has decreased by more than 30 percent
+    if (percentChange <= -30.0)
+    {
+        // Buy the stock
+        OrderSend(Symbol(), OP_BUY, 0.1, stockPrice, 3, 0, 0, "Buy Order", 0, 0, CLR_NONE);
+    }
+
+    // Check if the stock has increased by more than 30 percent
+    if (percentChange >= 30.0)
+    {
+        // Sell the stock
+        OrderSend(Symbol(), OP_SELL, 0.1, stockPrice, 3, 0, 0, "Sell Order", 0, 0, CLR_NONE);
+    }
+}
